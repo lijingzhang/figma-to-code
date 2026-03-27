@@ -2,6 +2,55 @@
 
 根据用户提供的 **Figma 链接** 或 **设计稿截图**，严格按照以下规范生成可直接运行的 React 组件代码。
 
+---
+
+## 前提：安装 Figma MCP
+
+> 仅使用 Figma 链接时需要；纯截图转代码可跳过。
+
+### 1. 安装 Claude Code（CLI）
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+### 2. 配置 Figma MCP Server
+
+在 Claude Code 中执行：
+
+```bash
+claude mcp add figma --transport sse https://mcp.figma.com/sse
+```
+
+或手动编辑 `~/.claude/settings.json`（用户全局）/ `.claude/settings.json`（项目级）：
+
+```json
+{
+  "mcpServers": {
+    "figma": {
+      "command": "npx",
+      "args": ["-y", "figma-developer-mcp", "--stdio"],
+      "env": {
+        "FIGMA_API_TOKEN": "<your-figma-token>"
+      }
+    }
+  }
+}
+```
+
+### 3. 获取 Figma API Token
+
+1. 打开 Figma → 右上角头像 → **Settings**
+2. 左侧 **Security** → **Personal access tokens** → **Generate new token**
+3. 勾选 `File content: Read-only`，生成后复制 token
+4. 将 token 填入上方配置的 `FIGMA_API_TOKEN`
+
+### 4. 验证安装
+
+重启 Claude Code 后，在对话中粘贴任意 Figma 设计稿链接，Claude 能正常读取设计内容即表示配置成功。
+
+---
+
 ## 第一步：读取设计稿
 
 - **Figma 链接**：调用 `mcp__figma__get_design_context` 工具读取设计稿（rate limit 时改用 REST API）
@@ -36,12 +85,12 @@ src/pages/<PageName>/
 **import 顺序（每个文件必须严格遵守）：**
 
 ```js
-import React from 'react';                          // 1. React（必须第一行）
-import { Button, Select, Table } from 'antd';        // 2. antd 组件
-import { ReloadOutlined } from '@ant-design/icons';  // 3. 图标只用 @ant-design/icons
-import someImg from '@/images/xxx.png';              // 4. 图片资源
-import CardHeader from '../CardHeader';              // 5. 兄弟组件
-import './index.less';                               // 6. 样式（最后）
+import React from 'react'; // 1. React（必须第一行）
+import { Button, Select, Table } from 'antd'; // 2. antd 组件
+import { ReloadOutlined } from '@ant-design/icons'; // 3. 图标只用 @ant-design/icons
+import someImg from '@/images/xxx.png'; // 4. 图片资源
+import CardHeader from '../CardHeader'; // 5. 兄弟组件
+import './index.less'; // 6. 样式（最后）
 ```
 
 **ESLint 要求（不得违反）：**
@@ -59,7 +108,6 @@ import './index.less';                               // 6. 样式（最后）
 ```less
 /* 默认 */
 @import '../../variables.less';
-
 ```
 
 **尺寸写法：**
@@ -67,15 +115,17 @@ import './index.less';                               // 6. 样式（最后）
 ```less
 /* 默认直接写 px */
 padding: 16px;
-
 ```
 
 **BEM 命名：**
 
 ```less
-.cm-block { }
-.cm-block__element { }
-.cm-block--modifier { }
+.cm-block {
+}
+.cm-block__element {
+}
+.cm-block--modifier {
+}
 ```
 
 **variables.less 常用变量参考：**
@@ -94,6 +144,29 @@ padding: 16px;
 
 - 非 `@ant-design/icons` 的图标 / 图片下载到 `src/images/`，用 `@/images/xxx.png` 引入
 - 矢量图标优先用 `@ant-design/icons`，不从其他图标库引入
+
+### 交互规范
+
+- **按钮**：必须实现 `hover`、`active`、`disabled` 三种状态样式，在 Less 中用 `&:hover`、`&:active`、`&:disabled` / `&.disabled` 分别定义
+- **表单**：使用 Ant Design `Form` 的 `rules` 属性实现校验，至少覆盖必填、格式、长度规则，示例：
+
+  ```js
+  rules={[
+    { required: true, message: '请输入xxx' },
+    { max: 50, message: '不超过50个字符' },
+  ]}
+  ```
+
+- **列表项**：添加过渡动画，在 Less 中统一用 `transition` 定义，示例：
+
+  ```less
+  .cm-list__item {
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+    &:hover {
+      background: @sidebar-bg;
+    }
+  }
+  ```
 
 ## 第四步：完整输出
 
