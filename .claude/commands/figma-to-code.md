@@ -54,15 +54,12 @@ import './index.less';                               // 6. 样式（最后）
 
 ### Less 文件规范
 
-**文件头（根据是否用 unit() 二选一）：**
+**文件头：**
 
 ```less
-/* 不用 unit() 时 */
+/* 默认 */
 @import '../../variables.less';
 
-/* 用了 unit() 时，common.less 必须第1行 */
-@import url('/src/common.less');
-@import '../../variables.less';
 ```
 
 **尺寸写法：**
@@ -71,9 +68,6 @@ import './index.less';                               // 6. 样式（最后）
 /* 默认直接写 px */
 padding: 16px;
 
-/* 需要 REM 响应式缩放时才用 unit()，设计稿基准 1920×1080 */
-padding: ~`unit(16)`;
-width: calc(100% - ~`minusunit(16)`);
 ```
 
 **BEM 命名：**
