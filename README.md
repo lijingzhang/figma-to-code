@@ -199,13 +199,6 @@ A：Figma MCP 有访问频率限制。此时 Claude 会自动改用 REST API 方
 
 A：确认项目的 `tsconfig.json` 或 `webpack.config.js` 中配置了 `@` 路径别名指向 `src/`。
 
-**Q：Less 中 `unit()` 函数报错？**
-
-A：使用了 `unit()` / `minusunit()` 的 Less 文件，顶部第一行必须加：
-```less
-@import url('/src/common.less');
-```
-
 **Q：skill 命令输入后没有反应？**
 
 A：检查文件是否放在正确的 `commands/` 目录下，且文件名为 `figma-to-code.md`。重启 Claude Code 后重试。
