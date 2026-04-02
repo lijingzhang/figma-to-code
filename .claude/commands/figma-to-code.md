@@ -168,6 +168,104 @@ padding: 16px;
   }
   ```
 
+  
+### 表单布局规范（重要）
+
+**必须使用 `Form` + `Row` + `Col` 排列表单元素，禁止手写 flex/grid 布局代替。**
+
+#### 1. 声明 form 实例
+
+```js
+const [form] = Form.useForm();
+```
+
+#### 2. 多列查询表单（筛选条）
+
+```js
+// 定义在组件外，保持稳定引用
+const itemLayout = {
+  labelCol: { span: 4 },
+  wrapperCol: { span: 14 },
+};
+```
+
+```jsx
+// 每行 4 列等宽：Col span={6}（总 24 份）
+// gutter={[16, 8]} 控制水平/垂直间距
+<Form form={form} {...itemLayout} colon={false}>
+  <Row gutter={[16, 8]} style={{ width: '100%' }}>
+    <Col span={6}>
+      <Form.Item label="工单编号" name="orderCode">
+        <Input placeholder="请输入" />
+      </Form.Item>
+    </Col>
+    <Col span={6}>
+      <Form.Item label="工单环节" name="orderStep">
+        <Select placeholder="请选择" allowClear>
+          <Option value="1">环节1</Option>
+        </Select>
+      </Form.Item>
+    </Col>
+  </Row>
+
+  {/* 最后一行：查询/重置按钮推到右侧 */}
+  <Row gutter={[16, 8]} style={{ width: '100%' }}>
+    <Col span={12}>...</Col>
+    <Col span={12} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <Form.Item>
+        <Button type="primary" icon={<SearchOutlined />} onClick={handleQuery}>
+          查询
+        </Button>
+      </Form.Item>
+      <Form.Item style={{ marginLeft: 8, marginRight: 0 }}>
+        <Button icon={<ReloadOutlined />} onClick={handleReset}>
+          重置
+        </Button>
+      </Form.Item>
+    </Col>
+  </Row>
+</Form>
+```
+
+#### 4. 取值 & 重置
+
+```js
+// 查询：校验后取值
+const handleQuery = () => {
+  form.validateFields().then(values => {
+    /* 发起请求 */
+  });
+};
+
+// 重置：一键清空所有字段
+const handleReset = () => {
+  form.resetFields();
+};
+
+// 直接取全部字段（不校验）
+const values = form.getFieldsValue(true);
+```
+
+#### 5. Less 中让控件撑满 Col
+
+```less
+.cm-filter-form {
+  .ant-form-item {
+    width: 100%;
+    margin-bottom: 0;
+  }
+  .ant-form-item-control {
+    flex: 1;
+    min-width: 0;
+  }
+  .ant-input,
+  .ant-select,
+  .ant-picker {
+    width: 100%;
+  }
+}
+```
+
 ## 第四步：完整输出
 
 **必须完整输出所有文件（JS + Less），不得省略任何文件或代码内容。**
